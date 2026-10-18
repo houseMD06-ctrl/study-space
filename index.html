@@ -1,102 +1,590 @@
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: #101114;
-  color: #f2f2f5;
-  font-family: Arial, sans-serif;
-}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY SPACE · WINTERSEMESTER</title>
+    <!-- FontAwesome для іконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #000000;
+            --card-bg: #121212;
+            --card-hover: #1e1e1e;
+            --card-border: #262626;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --accent: #ffffff;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+        }
 
-header {
-  padding: 35px 20px 20px;
-  max-width: 1000px;
-  margin: auto;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-.tag {
-  color: #a99cff;
-  font-size: 12px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-h1 {
-  font-size: clamp(32px, 7vw, 52px);
-  margin: 12px 0;
-}
+        /* Шапка */
+        .header {
+            margin-bottom: 24px;
+        }
 
-header p { color: #a5a6b0; }
+        .subtitle {
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-main {
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
-}
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
 
-input {
-  width: 100%;
-  padding: 15px 17px;
-  margin-bottom: 24px;
-  border-radius: 12px;
-  border: 1px solid #30313a;
-  background: #1b1c22;
-  color: white;
-  font-size: 16px;
-  outline: none;
-}
+        .counter {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
 
-input:focus { border-color: #a99cff; }
+        /* Кнопки дій */
+        .actions-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 15px;
-}
+        .btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
 
-.card {
-  display: block;
-  min-height: 145px;
-  padding: 22px;
-  background: #1b1c22;
-  border: 1px solid #30313a;
-  border-radius: 16px;
-  color: inherit;
-  text-decoration: none;
-  transition: 0.2s;
-}
+        .btn:hover {
+            background: var(--card-hover);
+            border-color: #404040;
+        }
 
-.card:hover {
-  border-color: #a99cff;
-  transform: translateY(-3px);
-  background: #22222c;
-}
+        /* Поля вводу */
+        .add-subject-form {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-.number {
-  color: #a99cff;
-  font-size: 13px;
-  margin-bottom: 18px;
-}
+        .add-subject-form.active {
+            display: flex;
+        }
 
-.card h2 {
-  font-size: 19px;
-  margin: 0 0 10px;
-}
+        input[type="text"], textarea {
+            background: #000000;
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            outline: none;
+        }
 
-.card p {
-  color: #999aa6;
-  font-size: 14px;
-  margin: 0;
-}
+        input[type="text"]:focus, textarea:focus {
+            border-color: #525252;
+        }
 
-footer {
-  max-width: 1000px;
-  margin: auto;
-  padding: 30px 20px;
-  color: #777985;
-  font-size: 13px;
-}
+        /* Сітка предметів */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
 
-.empty {
-  display: none;
-  color: #a5a6b0;
-  padding: 20px 0;
-}
+        @media (max-width: 520px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .subject-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+        }
+
+        .subject-card:hover {
+            background: var(--card-hover);
+            transform: translateY(-2px);
+            border-color: #404040;
+        }
+
+        .subject-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .subject-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .subject-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Екран конкретного предмета */
+        .subject-view {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            width: fit-content;
+        }
+
+        .nav-back:hover {
+            color: var(--text-primary);
+        }
+
+        .sections-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-block {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-upload-btn {
+            background: #262626;
+            color: var(--text-primary);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-upload-btn:hover {
+            background: #333333;
+        }
+
+        /* Список файлів */
+        .files-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-item {
+            background: #000000;
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .file-name {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .file-action-icon {
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .file-action-icon:hover {
+            color: var(--text-primary);
+        }
+
+        .file-action-icon.delete:hover {
+            color: #ef4444;
+        }
+
+        .notes-area {
+            width: 100%;
+            height: 100px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ГОЛОВНИЙ ЕКРАН СІТКИ ПРЕДМЕТІВ -->
+    <div id="mainDashboard">
+        <div class="header">
+            <div class="subtitle">STUDY SPACE · WINTERSEMESTER</div>
+            <div class="title">Meine Fächer.</div>
+            <div class="counter" id="subjectCount">0 Fächer · dein Lernbereich</div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn" onclick="toggleAddForm()"><i class="fa-solid fa-plus"></i> Fach hinzufügen</button>
+        </div>
+
+        <!-- Форма додавання предмета -->
+        <form class="add-subject-form" id="addSubjectForm">
+            <input type="text" id="subjectTitle" placeholder="Fachname (z.B. Physik GL)" required>
+            <input type="text" id="subjectDesc" placeholder="Beschreibung (z.B. Formeln · Aufgaben · Vorlesungen)">
+            <button type="submit" class="btn" style="background: #ffffff; color: #000000;"><i class="fa-solid fa-check"></i> Speichern</button>
+        </form>
+
+        <!-- Сітка предметів -->
+        <div class="subjects-grid" id="subjectsGrid"></div>
+    </div>
+
+    <!-- ЕКРАН ОДНОГО ПРЕДМЕТА -->
+    <div id="subjectView" class="subject-view">
+        <div class="nav-back" onclick="showDashboard()">
+            <i class="fa-solid fa-chevron-left"></i> Zurück zu Fächern
+        </div>
+
+        <div class="header">
+            <div class="title" id="viewSubjectTitle">Fachname</div>
+            <div class="subtitle" id="viewSubjectDesc">Beschreibung</div>
+            <button class="btn" style="background: #262626; color: #ef4444; border: none; margin-top: 10px;" onclick="deleteCurrentSubject()">
+                <i class="fa-solid fa-trash"></i> Fach löschen
+            </button>
+        </div>
+
+        <div class="sections-list">
+            <!-- 1. Vorlesungen -->
+            <div class="section-block">
+                <div class="section-header">
+                    <div class="section-title"><i class="fa-solid fa-book-open"></i> Vorlesungen</div>
+                    <label class="file-upload-btn">
+                        <i class="fa-solid fa-upload"></i> Datei
+                        <input type="file" hidden onchange="uploadFile(event, 'Vorlesungen')">
+                    </label>
+                </div>
+                <div class="files-list" id="files-Vorlesungen"></div>
+            </div>
+
+            <!-- 2. Übungen -->
+            <div class="section-block">
+                <div class="section-header">
+                    <div class="section-title"><i class="fa-solid fa-pen-ruler"></i> Übungen</div>
+                    <label class="file-upload-btn">
+                        <i class="fa-solid fa-upload"></i> Datei
+                        <input type="file" hidden onchange="uploadFile(event, 'Übungen')">
+                    </label>
+                </div>
+                <div class="files-list" id="files-Übungen"></div>
+            </div>
+
+            <!-- 3. Zusammenfassungen -->
+            <div class="section-block">
+                <div class="section-header">
+                    <div class="section-title"><i class="fa-solid fa-file-lines"></i> Zusammenfassungen & Notizen</div>
+                </div>
+                <textarea class="notes-area" id="notesArea" placeholder="Schreibe hier deine Zusammenfassungen oder Notizen..."></textarea>
+                <button class="btn" onclick="saveNotes()"><i class="fa-solid fa-floppy-disk"></i> Notizen speichern</button>
+            </div>
+
+            <!-- 4. Prüfungsvorbereitung -->
+            <div class="section-block">
+                <div class="section-header">
+                    <div class="section-title"><i class="fa-solid fa-graduation-cap"></i> Prüfungsvorbereitung</div>
+                    <label class="file-upload-btn">
+                        <i class="fa-solid fa-upload"></i> Datei
+                        <input type="file" hidden onchange="uploadFile(event, 'Prüfungsvorbereitung')">
+                    </label>
+                </div>
+                <div class="files-list" id="files-Prüfungsvorbereitung"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ініціалізація IndexedDB
+        let db;
+        const dbReq = indexedDB.open("StudySpaceDB", 1);
+
+        dbReq.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("subjects")) db.createObjectStore("subjects", { keyPath: "id" });
+            if (!db.objectStoreNames.contains("files")) db.createObjectStore("files", { keyPath: "id" });
+        };
+
+        dbReq.onsuccess = (e) => {
+            db = e.target.result;
+            initDefaultSubjects();
+        };
+
+        let currentSubjectId = null;
+
+        // Початкові предмети як на скриншоті
+        function initDefaultSubjects() {
+            const tx = db.transaction("subjects", "readonly");
+            tx.objectStore("subjects").getAll().onsuccess = (e) => {
+                if (e.target.result.length === 0) {
+                    const defaults = [
+                        { id: "sub_1", title: "Physiologie und Pathophysiologie", desc: "Teoria · konspekty · terminy", icon: "fa-heart-pulse" },
+                        { id: "sub_2", title: "Funktionelle Anatomie", desc: "Anatomia · schemy · materialy", icon: "fa-shapes" },
+                        { id: "sub_3", title: "Physik GL", desc: "Formulii · zadachi · lekcii", icon: "fa-atom" },
+                        { id: "sub_4", title: "Chemie GL", desc: "Reakcii · formulii · vpravy", icon: "fa-flask" },
+                        { id: "sub_5", title: "Elektrotechnik", desc: "Schemy · rozrakhunky · zadachi", icon: "fa-bolt" },
+                        { id: "sub_6", title: "Mathe", desc: "Teoria · vpravy · formulii", icon: "fa-calculator" }
+                    ];
+                    const writeTx = db.transaction("subjects", "readwrite");
+                    defaults.forEach(s => writeTx.objectStore("subjects").put(s));
+                    writeTx.oncomplete = () => loadSubjects();
+                } else {
+                    loadSubjects();
+                }
+            };
+        }
+
+        function toggleAddForm() {
+            const form = document.getElementById('addSubjectForm');
+            form.classList.toggle('active');
+        }
+
+        // Створення предмета
+        document.getElementById('addSubjectForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('subjectTitle').value.trim();
+            const desc = document.getElementById('subjectDesc').value.trim();
+
+            const subject = {
+                id: 'sub_' + Date.now(),
+                title: title,
+                desc: desc || 'Materialien · Notizen',
+                icon: 'fa-book'
+            };
+
+            const tx = db.transaction("subjects", "readwrite");
+            tx.objectStore("subjects").put(subject);
+            tx.oncomplete = () => {
+                document.getElementById('subjectTitle').value = '';
+                document.getElementById('subjectDesc').value = '';
+                toggleAddForm();
+                loadSubjects();
+            };
+        });
+
+        // Завантаження сітки предметів
+        function loadSubjects() {
+            const grid = document.getElementById('subjectsGrid');
+            grid.innerHTML = '';
+            
+            const tx = db.transaction("subjects", "readonly");
+            tx.objectStore("subjects").getAll().onsuccess = (e) => {
+                const subjects = e.target.result;
+                document.getElementById('subjectCount').textContent = `${subjects.length} Fächer · dein Lernbereich`;
+
+                subjects.forEach(sub => {
+                    const card = document.createElement('div');
+                    card.className = 'subject-card';
+                    card.onclick = () => openSubject(sub.id);
+                    card.innerHTML = `
+                        <div>
+                            <i class="fa-solid ${sub.icon || 'fa-book'} subject-icon"></i>
+                            <div class="subject-name">${sub.title}</div>
+                        </div>
+                        <div class="subject-description">${sub.desc || ''}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            };
+        }
+
+        // Відкриття предмета
+        function openSubject(id) {
+            currentSubjectId = id;
+            document.getElementById('mainDashboard').style.display = 'none';
+            document.getElementById('subjectView').style.display = 'flex';
+
+            const tx = db.transaction("subjects", "readonly");
+            tx.objectStore("subjects").get(id).onsuccess = (e) => {
+                const sub = e.target.result;
+                document.getElementById('viewSubjectTitle').textContent = sub.title;
+                document.getElementById('viewSubjectDesc').textContent = sub.desc || '';
+                document.getElementById('notesArea').value = sub.notes || '';
+
+                loadFiles();
+            };
+        }
+
+        function showDashboard() {
+            currentSubjectId = null;
+            document.getElementById('subjectView').style.display = 'none';
+            document.getElementById('mainDashboard').style.display = 'block';
+            loadSubjects();
+        }
+
+        // Збереження конспектів
+        function saveNotes() {
+            if (!currentSubjectId) return;
+            const tx = db.transaction("subjects", "readwrite");
+            const store = tx.objectStore("subjects");
+            store.get(currentSubjectId).onsuccess = (e) => {
+                const sub = e.target.result;
+                sub.notes = document.getElementById('notesArea').value;
+                store.put(sub);
+                alert("Notizen gespeichert!");
+            };
+        }
+
+        // Завантаження файлів
+        function uploadFile(event, section) {
+            const file = event.target.files[0];
+            if (!file || !currentSubjectId) return;
+
+            const fileData = {
+                id: 'file_' + Date.now() + '_' + Math.random(),
+                subjectId: currentSubjectId,
+                section: section,
+                name: file.name,
+                blob: file
+            };
+
+            const tx = db.transaction("files", "readwrite");
+            tx.objectStore("files").put(fileData);
+            tx.oncomplete = () => loadFiles();
+        }
+
+        // Відображення файлів за розділами
+        function loadFiles() {
+            ['Vorlesungen', 'Übungen', 'Prüfungsvorbereitung'].forEach(sec => {
+                document.getElementById(`files-${sec}`).innerHTML = '';
+            });
+
+            const tx = db.transaction("files", "readonly");
+            tx.objectStore("files").getAll().onsuccess = (e) => {
+                const files = e.target.result.filter(f => f.subjectId === currentSubjectId);
+
+                files.forEach(f => {
+                    const container = document.getElementById(`files-${f.section}`);
+                    if (!container) return;
+
+                    const url = URL.createObjectURL(f.blob);
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.innerHTML = `
+                        <div class="file-info">
+                            <i class="fa-solid fa-file" style="color: var(--text-secondary)"></i>
+                            <div class="file-name" title="${f.name}">${f.name}</div>
+                        </div>
+                        <div class="file-actions">
+                            <a href="${url}" download="${f.name}" class="file-action-icon" title="Herunterladen"><i class="fa-solid fa-download"></i></a>
+                            <i class="fa-solid fa-trash file-action-icon delete" onclick="deleteFile('${f.id}')" title="Löschen"></i>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            };
+        }
+
+        function deleteFile(id) {
+            if (!confirm("Datei löschen?")) return;
+            const tx = db.transaction("files", "readwrite");
+            tx.objectStore("files").delete(id);
+            tx.oncomplete = () => loadFiles();
+        }
+
+        function deleteCurrentSubject() {
+            if (!confirm("Möchtest du dieses Fach wirklich löschen?")) return;
+            const tx = db.transaction(["subjects", "files"], "readwrite");
+            tx.objectStore("subjects").delete(currentSubjectId);
+            
+            const filesStore = tx.objectStore("files");
+            filesStore.getAll().onsuccess = (e) => {
+                e.target.result.forEach(f => {
+                    if (f.subjectId === currentSubjectId) filesStore.delete(f.id);
+                });
+            };
+
+            tx.oncomplete = () => showDashboard();
+        }
+    </script>
+</body>
+</html>
