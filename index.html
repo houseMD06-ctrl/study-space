@@ -168,7 +168,7 @@
             line-height: 1.4;
         }
 
-        /* Екран конкретного предмета */
+        /* Екран предмету */
         .subject-view {
             display: none;
             flex-direction: column;
@@ -258,6 +258,7 @@
             align-items: center;
             gap: 10px;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .file-name {
@@ -270,7 +271,8 @@
 
         .file-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            align-items: center;
         }
 
         .file-action-icon {
@@ -278,6 +280,7 @@
             cursor: pointer;
             font-size: 0.9rem;
             text-decoration: none;
+            transition: color 0.2s;
         }
 
         .file-action-icon:hover {
@@ -290,9 +293,87 @@
 
         .notes-area {
             width: 100%;
-            height: 100px;
+            height: 120px;
             resize: vertical;
             margin-bottom: 10px;
+        }
+
+        /* Модальне вікно перегляду файлів */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            background: #121212;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80%;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .modal-body iframe, .modal-body img {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+        }
+
+        .unsupported-msg {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 400px;
+        }
+
+        .unsupported-msg i {
+            font-size: 3rem;
+            margin-bottom: 12px;
         }
     </style>
 </head>
@@ -383,6 +464,15 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНЕ ВІКНО ПЕРЕГЛЯДУ -->
+    <div class="modal" id="viewerModal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalFileName">Datei anzeigen</div>
+            <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+
     <script>
         // Ініціалізація IndexedDB
         let db;
@@ -401,7 +491,6 @@
 
         let currentSubjectId = null;
 
-        // Початкові предмети як на скриншоті
         function initDefaultSubjects() {
             const tx = db.transaction("subjects", "readonly");
             tx.objectStore("subjects").getAll().onsuccess = (e) => {
@@ -524,6 +613,7 @@
                 subjectId: currentSubjectId,
                 section: section,
                 name: file.name,
+                type: file.type,
                 blob: file
             };
 
@@ -532,7 +622,7 @@
             tx.oncomplete = () => loadFiles();
         }
 
-        // Відображення файлів за розділами
+        // Відображення файлів
         function loadFiles() {
             ['Vorlesungen', 'Übungen', 'Prüfungsvorbereitung'].forEach(sec => {
                 document.getElementById(`files-${sec}`).innerHTML = '';
@@ -550,11 +640,12 @@
                     const item = document.createElement('div');
                     item.className = 'file-item';
                     item.innerHTML = `
-                        <div class="file-info">
+                        <div class="file-info" onclick="viewFile('${f.id}')">
                             <i class="fa-solid fa-file" style="color: var(--text-secondary)"></i>
                             <div class="file-name" title="${f.name}">${f.name}</div>
                         </div>
                         <div class="file-actions">
+                            <i class="fa-solid fa-eye file-action-icon" onclick="viewFile('${f.id}')" title="Anzeigen"></i>
                             <a href="${url}" download="${f.name}" class="file-action-icon" title="Herunterladen"><i class="fa-solid fa-download"></i></a>
                             <i class="fa-solid fa-trash file-action-icon delete" onclick="deleteFile('${f.id}')" title="Löschen"></i>
                         </div>
@@ -562,6 +653,52 @@
                     container.appendChild(item);
                 });
             };
+        }
+
+        // Відкриття файлу у модальному вікні
+        function viewFile(fileId) {
+            const tx = db.transaction("files", "readonly");
+            tx.objectStore("files").get(fileId).onsuccess = (e) => {
+                const file = e.target.result;
+                if (!file) return;
+
+                const modal = document.getElementById('viewerModal');
+                const modalBody = document.getElementById('modalBody');
+                const modalTitle = document.getElementById('modalFileName');
+                
+                modalTitle.textContent = file.name;
+                modalBody.innerHTML = '';
+
+                const url = URL.createObjectURL(file.blob);
+                const nameLower = file.name.toLowerCase();
+
+                // Для PDF та зображень
+                if (file.type === 'application/pdf' || nameLower.endsWith('.pdf')) {
+                    modalBody.innerHTML = `<iframe src="${url}"></iframe>`;
+                } else if (file.type.startsWith('image/') || nameLower.match(/\.(jpg|jpeg|png|webp|gif)$/)) {
+                    modalBody.innerHTML = `<img src="${url}" alt="${file.name}">`;
+                } else {
+                    // Для документів, які не підтримуються безпосередньо у браузері (PPTX, DOCX)
+                    modalBody.innerHTML = `
+                        <div class="unsupported-msg">
+                            <i class="fa-solid fa-file-circle-exclamation"></i>
+                            <h3>Vorschau nicht verfügbar</h3>
+                            <p style="margin: 8px 0 16px 0;">Dateien vom Typ PowerPoint (.pptx) oder Word (.docx) können nicht direkt im Browser angezeigt werden.</p>
+                            <a href="${url}" download="${file.name}" class="btn" style="background: #ffffff; color: #000000; text-decoration: none;">
+                                <i class="fa-solid fa-download"></i> Datei herunterladen
+                            </a>
+                        </div>
+                    `;
+                }
+
+                modal.classList.add('active');
+            };
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('viewerModal');
+            modal.classList.remove('active');
+            document.getElementById('modalBody').innerHTML = '';
         }
 
         function deleteFile(id) {
