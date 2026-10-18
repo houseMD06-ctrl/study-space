@@ -1,571 +1,102 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lernportal — Fächer, Dateien & Fazit</title>
-    <!-- FontAwesome для іконок -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg: #0f172a;
-            --sidebar-bg: #1e293b;
-            --card-bg: #1e293b;
-            --card-hover: #334155;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --border: #334155;
-            --radius: 12px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Бічна панель */
-        .sidebar {
-            width: 320px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #818cf8;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .folder-form {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px 14px;
-            background: #0f172a;
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: var(--radius);
-            outline: none;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
-        }
-
-        input[type="text"]:focus, textarea:focus {
-            border-color: var(--primary);
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .folder-list {
-            list-style: none;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        .folder-item {
-            padding: 12px 16px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            transition: all 0.2s;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .folder-item:hover {
-            background: var(--card-hover);
-            color: var(--text);
-        }
-
-        .folder-item.active {
-            background: #312e81;
-            color: #818cf8;
-            font-weight: 600;
-            border: 1px solid #4338ca;
-        }
-
-        /* Основний контент */
-        .main-content {
-            flex-grow: 1;
-            padding: 30px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .empty-state {
-            margin: auto;
-            text-align: center;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        /* Блок Нотаток/Висновків */
-        .notes-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-
-        .notes-card h3 {
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #e2e8f0;
-        }
-
-        .notes-card textarea {
-            height: 120px;
-            resize: vertical;
-            margin-bottom: 12px;
-        }
-
-        /* Блок Файлів */
-        .files-section {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .files-section h3 {
-            color: #e2e8f0;
-        }
-
-        .upload-area {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            text-align: center;
-            background: var(--card-bg);
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-        }
-
-        .upload-area:hover {
-            border-color: var(--primary);
-            background: var(--card-hover);
-        }
-
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 16px;
-        }
-
-        .file-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: var(--shadow);
-        }
-
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .file-icon {
-            font-size: 1.8rem;
-            color: #818cf8;
-        }
-
-        .file-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            word-break: break-all;
-            color: var(--text);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 6px 10px;
-            border-radius: 6px;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .icon-btn:hover {
-            color: var(--text);
-            background: var(--card-hover);
-        }
-
-        .icon-btn.delete:hover {
-            color: #ef4444;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Бічна панель -->
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-graduation-cap"></i> Lernportal
-        </div>
-        <form class="folder-form" id="addFolderForm">
-            <input type="text" id="folderInput" placeholder="Neues Fach..." required>
-            <button type="submit" class="btn"><i class="fa-solid fa-plus"></i></button>
-        </form>
-        <ul class="folder-list" id="folderList"></ul>
-    </div>
-
-    <!-- Головний екран -->
-    <div class="main-content" id="mainContent">
-        <div class="empty-state" id="emptyState">
-            <i class="fa-solid fa-folder-open"></i>
-            <h2>Wähle oder erstelle ein Fach</h2>
-            <p>Wähle links einen Ordner aus, um Lernmaterialien und Notizen zu verwalten.</p>
-        </div>
-
-        <div id="activeFolderContent" style="display: none; flex-direction: column; gap: 24px;">
-            <div class="header-section">
-                <h1 id="currentFolderName">Fach</h1>
-                <button class="btn btn-danger" id="deleteFolderBtn">
-                    <i class="fa-solid fa-trash"></i> Ordner löschen
-                </button>
-            </div>
-
-            <!-- Блок Висновків -->
-            <div class="notes-card">
-                <h3><i class="fa-solid fa-pen-to-square"></i> Fazit & Zusammenfassung</h3>
-                <textarea id="notesInput" placeholder="Schreibe hier deine Erkenntnisse oder Notizen..."></textarea>
-                <button class="btn" id="saveNotesBtn"><i class="fa-solid fa-floppy-disk"></i> Notizen speichern</button>
-            </div>
-
-            <!-- Блок Завантаження файлів -->
-            <div class="files-section">
-                <h3><i class="fa-solid fa-file-lines"></i> Lernmaterialien (PDF, PPTX, Docs, Bilder)</h3>
-                
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #818cf8; margin-bottom: 8px;"></i>
-                    <p>Klicke hier, um Dateien hochzuladen</p>
-                    <small style="color: var(--text-muted);">PDF, Präsentationen, Dokumente etc.</small>
-                    <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileUpload(event)">
-                </div>
-
-                <div class="files-grid" id="filesGrid"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Потужна та стабільна ініціалізація IndexedDB з підтримкою великих бінарних файлів (Blob)
-        let db;
-        const dbRequest = indexedDB.open("LernportalDB", 2);
-
-        dbRequest.onupgradeneeded = function(e) {
-            db = e.target.result;
-            if (!db.objectStoreNames.contains("folders")) {
-                db.createObjectStore("folders", { keyPath: "id" });
-            }
-            if (!db.objectStoreNames.contains("files")) {
-                db.createObjectStore("files", { keyPath: "id" });
-            }
-        };
-
-        dbRequest.onsuccess = function(e) {
-            db = e.target.result;
-            loadFolders();
-        };
-
-        dbRequest.onerror = function(e) {
-            console.error("Database error:", e.target.error);
-            alert("Fehler beim Öffnen der Datenbank!");
-        };
-
-        let currentFolderId = null;
-
-        const folderList = document.getElementById('folderList');
-        const addFolderForm = document.getElementById('addFolderForm');
-        const folderInput = document.getElementById('folderInput');
-        const activeFolderContent = document.getElementById('activeFolderContent');
-        const emptyState = document.getElementById('emptyState');
-        const currentFolderName = document.getElementById('currentFolderName');
-        const notesInput = document.getElementById('notesInput');
-        const filesGrid = document.getElementById('filesGrid');
-
-        // Створення папки
-        addFolderForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = folderInput.value.trim();
-            if (!name) return;
-
-            const folder = {
-                id: 'folder_' + Date.now(),
-                name: name,
-                notes: ''
-            };
-
-            const tx = db.transaction("folders", "readwrite");
-            tx.objectStore("folders").put(folder);
-            tx.oncomplete = () => {
-                folderInput.value = '';
-                loadFolders();
-                selectFolder(folder.id);
-            };
-        });
-
-        // Завантаження списку папок
-        function loadFolders() {
-            folderList.innerHTML = '';
-            const tx = db.transaction("folders", "readonly");
-            const store = tx.objectStore("folders");
-            const request = store.getAll();
-
-            request.onsuccess = () => {
-                const folders = request.result;
-                folders.forEach(folder => {
-                    const li = document.createElement('li');
-                    li.className = `folder-item ${folder.id === currentFolderId ? 'active' : ''}`;
-                    li.innerHTML = `<i class="fa-solid fa-folder"></i> <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</span>`;
-                    li.onclick = () => selectFolder(folder.id);
-                    folderList.appendChild(li);
-                });
-            };
-        }
-
-        // Вибір папки
-        function selectFolder(id) {
-            currentFolderId = id;
-            loadFolders();
-
-            const tx = db.transaction("folders", "readonly");
-            const store = tx.objectStore("folders");
-            const request = store.get(id);
-
-            request.onsuccess = () => {
-                const folder = request.result;
-                if (!folder) return;
-
-                emptyState.style.display = 'none';
-                activeFolderContent.style.display = 'flex';
-                currentFolderName.textContent = folder.name;
-                notesInput.value = folder.notes || '';
-
-                loadFiles(id);
-            };
-        }
-
-        // Збереження нотаток
-        document.getElementById('saveNotesBtn').addEventListener('click', () => {
-            if (!currentFolderId) return;
-
-            const tx = db.transaction("folders", "readwrite");
-            const store = tx.objectStore("folders");
-            const request = store.get(currentFolderId);
-
-            request.onsuccess = () => {
-                const folder = request.result;
-                if (folder) {
-                    folder.notes = notesInput.value;
-                    store.put(folder);
-                    alert('Notizen erfolgreich gespeichert!');
-                }
-            };
-        });
-
-        // Завантаження файлів (прямо у вигляді Blob для надійності)
-        function handleFileUpload(event) {
-            const files = event.target.files;
-            if (!files.length || !currentFolderId) return;
-
-            const tx = db.transaction("files", "readwrite");
-            const store = tx.objectStore("files");
-
-            let completed = 0;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                
-                const fileData = {
-                    id: 'file_' + Date.now() + '_' + Math.random(),
-                    folderId: currentFolderId,
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    blob: file // Зберігаємо як є (Blob)
-                };
-
-                store.put(fileData);
-            }
-
-            tx.oncomplete = () => {
-                document.getElementById('fileInput').value = '';
-                loadFiles(currentFolderId);
-            };
-
-            tx.onerror = (e) => {
-                console.error("File upload error:", e.target.error);
-                alert("Fehler beim Hochladen der Datei!");
-            };
-        }
-
-        // Відображення файлів
-        function loadFiles(folderId) {
-            filesGrid.innerHTML = '';
-            const tx = db.transaction("files", "readonly");
-            const store = tx.objectStore("files");
-            const request = store.getAll();
-
-            request.onsuccess = () => {
-                const allFiles = request.result;
-                const files = allFiles.filter(f => f.folderId === folderId);
-                
-                if (files.length === 0) {
-                    filesGrid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Noch keine Dateien hochgeladen.</p>';
-                    return;
-                }
-
-                files.forEach(file => {
-                    const card = document.createElement('div');
-                    card.className = 'file-card';
-
-                    let icon = 'fa-file';
-                    const nameLower = file.name.toLowerCase();
-                    if (nameLower.endsWith('.pdf')) icon = 'fa-file-pdf';
-                    else if (nameLower.endsWith('.pptx') || nameLower.endsWith('.ppt')) icon = 'fa-file-powerpoint';
-                    else if (nameLower.endsWith('.docx') || nameLower.endsWith('.doc')) icon = 'fa-file-word';
-                    else if (file.type && file.type.startsWith('image/')) icon = 'fa-file-image';
-
-                    // Створюємо безпечне посилання для завантаження на льоту з Blob
-                    const fileUrl = URL.createObjectURL(file.blob);
-
-                    card.innerHTML = `
-                        <div class="file-info">
-                            <i class="fa-solid ${icon} file-icon"></i>
-                            <div class="file-name" title="${file.name}">${file.name}</div>
-                        </div>
-                        <div class="file-actions">
-                            <a href="${fileUrl}" download="${file.name}" class="icon-btn" title="Herunterladen">
-                                <i class="fa-solid fa-download"></i>
-                            </a>
-                            <button class="icon-btn delete" onclick="deleteFile('${file.id}')" title="Löschen">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    filesGrid.appendChild(card);
-                });
-            };
-        }
-
-        // Видалення окремого файлу
-        function deleteFile(fileId) {
-            if (!confirm('Möchtest du diese Datei wirklich löschen?')) return;
-            const tx = db.transaction("files", "readwrite");
-            tx.objectStore("files").delete(fileId);
-            tx.oncomplete = () => loadFiles(currentFolderId);
-        }
-
-        // Видалення папки та всіх її файлів
-        document.getElementById('deleteFolderBtn').addEventListener('click', () => {
-            if (!confirm('Möchtest du dieses Fach und alle zugehörigen Dateien wirklich löschen?')) return;
-
-            const tx = db.transaction(["folders", "files"], "readwrite");
-            tx.objectStore("folders").delete(currentFolderId);
-            
-            const filesStore = tx.objectStore("files");
-            const req = filesStore.getAll();
-            req.onsuccess = () => {
-                req.result.forEach(file => {
-                    if (file.folderId === currentFolderId) {
-                        filesStore.delete(file.id);
-                    }
-                });
-            };
-
-            tx.oncomplete = () => {
-                currentFolderId = null;
-                activeFolderContent.style.display = 'none';
-                emptyState.style.display = 'block';
-                loadFolders();
-            };
-        });
-    </script>
-</body>
-</html>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #101114;
+  color: #f2f2f5;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  padding: 35px 20px 20px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.tag {
+  color: #a99cff;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: clamp(32px, 7vw, 52px);
+  margin: 12px 0;
+}
+
+header p { color: #a5a6b0; }
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 15px 17px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  border: 1px solid #30313a;
+  background: #1b1c22;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+input:focus { border-color: #a99cff; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  display: block;
+  min-height: 145px;
+  padding: 22px;
+  background: #1b1c22;
+  border: 1px solid #30313a;
+  border-radius: 16px;
+  color: inherit;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.card:hover {
+  border-color: #a99cff;
+  transform: translateY(-3px);
+  background: #22222c;
+}
+
+.number {
+  color: #a99cff;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.card h2 {
+  font-size: 19px;
+  margin: 0 0 10px;
+}
+
+.card p {
+  color: #999aa6;
+  font-size: 14px;
+  margin: 0;
+}
+
+footer {
+  max-width: 1000px;
+  margin: auto;
+  padding: 30px 20px;
+  color: #777985;
+  font-size: 13px;
+}
+
+.empty {
+  display: none;
+  color: #a5a6b0;
+  padding: 20px 0;
+}
