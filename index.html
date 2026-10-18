@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Особистий Кабінет Навчання — Папки та Матеріали</title>
+    <title>Lernportal — Fächer, Dateien & Fazit</title>
     <!-- FontAwesome для іконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg: #f8fafc;
-            --sidebar-bg: #ffffff;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --text-muted: #64748b;
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --border: #e2e8f0;
+            --bg: #0f172a;
+            --sidebar-bg: #1e293b;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --border: #334155;
             --radius: 12px;
-            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
         }
 
         * {
@@ -35,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* Бічна панель (Список предметів) */
+        /* Бічна панель */
         .sidebar {
             width: 320px;
             background: var(--sidebar-bg);
@@ -48,7 +49,7 @@
         .logo {
             font-size: 1.25rem;
             font-weight: 700;
-            color: var(--primary);
+            color: #818cf8;
             margin-bottom: 24px;
             display: flex;
             align-items: center;
@@ -64,7 +65,9 @@
         input[type="text"], textarea {
             width: 100%;
             padding: 10px 14px;
+            background: #0f172a;
             border: 1px solid var(--border);
+            color: var(--text);
             border-radius: var(--radius);
             outline: none;
             font-size: 0.95rem;
@@ -120,14 +123,15 @@
         }
 
         .folder-item:hover {
-            background: #f1f5f9;
+            background: var(--card-hover);
             color: var(--text);
         }
 
         .folder-item.active {
-            background: #e0e7ff;
-            color: var(--primary);
+            background: #312e81;
+            color: #818cf8;
             font-weight: 600;
+            border: 1px solid #4338ca;
         }
 
         /* Основний контент */
@@ -175,6 +179,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            color: #e2e8f0;
         }
 
         .notes-card textarea {
@@ -183,11 +188,15 @@
             margin-bottom: 12px;
         }
 
-        /* Блок Завантаження та Файлів */
+        /* Блок Файлів */
         .files-section {
             display: flex;
             flex-direction: column;
             gap: 16px;
+        }
+
+        .files-section h3 {
+            color: #e2e8f0;
         }
 
         .upload-area {
@@ -195,23 +204,24 @@
             border-radius: var(--radius);
             padding: 24px;
             text-align: center;
-            background: white;
+            background: var(--card-bg);
             cursor: pointer;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, background 0.2s;
         }
 
         .upload-area:hover {
             border-color: var(--primary);
+            background: var(--card-hover);
         }
 
         .files-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px;
         }
 
         .file-card {
-            background: white;
+            background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 16px;
@@ -219,7 +229,6 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: var(--shadow);
-            position: relative;
         }
 
         .file-info {
@@ -231,13 +240,14 @@
 
         .file-icon {
             font-size: 1.8rem;
-            color: var(--primary);
+            color: #818cf8;
         }
 
         .file-name {
             font-size: 0.9rem;
             font-weight: 600;
             word-break: break-all;
+            color: var(--text);
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -256,13 +266,14 @@
             color: var(--text-muted);
             cursor: pointer;
             font-size: 1rem;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
         }
 
         .icon-btn:hover {
-            color: var(--primary);
-            background: #f1f5f9;
+            color: var(--text);
+            background: var(--card-hover);
         }
 
         .icon-btn.delete:hover {
@@ -272,50 +283,50 @@
 </head>
 <body>
 
-    <!-- Слайдбар: Папки предметів -->
+    <!-- Бічна панель -->
     <div class="sidebar">
         <div class="logo">
-            <i class="fa-solid fa-graduation-cap"></i> Навчальний Хаб
+            <i class="fa-solid fa-graduation-cap"></i> Lernportal
         </div>
         <form class="folder-form" id="addFolderForm">
-            <input type="text" id="folderInput" placeholder="Назва предмета..." required>
+            <input type="text" id="folderInput" placeholder="Neues Fach..." required>
             <button type="submit" class="btn"><i class="fa-solid fa-plus"></i></button>
         </form>
         <ul class="folder-list" id="folderList"></ul>
     </div>
 
-    <!-- Основний контент -->
+    <!-- Головний екран -->
     <div class="main-content" id="mainContent">
         <div class="empty-state" id="emptyState">
             <i class="fa-solid fa-folder-open"></i>
-            <h2>Оберіть або створіть предмет</h2>
-            <p>Оберіть папку ліворуч, щоб переглянути матеріали та висновки.</p>
+            <h2>Wähle oder erstelle ein Fach</h2>
+            <p>Wähle links einen Ordner aus, um Lernmaterialien und Notizen zu verwalten.</p>
         </div>
 
         <div id="activeFolderContent" style="display: none; flex-direction: column; gap: 24px;">
             <div class="header-section">
-                <h1 id="currentFolderName">Предмет</h1>
+                <h1 id="currentFolderName">Fach</h1>
                 <button class="btn btn-danger" id="deleteFolderBtn">
-                    <i class="fa-solid fa-trash"></i> Видалити папку
+                    <i class="fa-solid fa-trash"></i> Ordner löschen
                 </button>
             </div>
 
-            <!-- Блок Висновків та Нотаток -->
+            <!-- Блок Висновків -->
             <div class="notes-card">
-                <h3><i class="fa-solid fa-pen-to-square"></i> Висновки та Нотатки з предмета</h3>
-                <textarea id="notesInput" placeholder="Занотовуйте основні тези, підсумки лекцій або висновки тут..."></textarea>
-                <button class="btn" id="saveNotesBtn"><i class="fa-solid fa-floppy-disk"></i> Зберегти нотатки</button>
+                <h3><i class="fa-solid fa-pen-to-square"></i> Fazit & Zusammenfassung</h3>
+                <textarea id="notesInput" placeholder="Schreibe hier deine Erkenntnisse oder Notizen..."></textarea>
+                <button class="btn" id="saveNotesBtn"><i class="fa-solid fa-floppy-disk"></i> Notizen speichern</button>
             </div>
 
-            <!-- Блок Файлів -->
+            <!-- Блок Завантаження файлів -->
             <div class="files-section">
-                <h3><i class="fa-solid fa-file-lines"></i> Матеріали (PDF, Презентації, Документи)</h3>
+                <h3><i class="fa-solid fa-file-lines"></i> Lernmaterialien (PDF, PPTX, Docs, Bilder)</h3>
                 
                 <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--primary); margin-bottom: 8px;"></i>
-                    <p>Натисніть або перетягніть файл сюди</p>
-                    <small style="color: var(--text-muted);">PDF, PPTX, DOCX, зображення тощо</small>
-                    <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #818cf8; margin-bottom: 8px;"></i>
+                    <p>Klicke hier, um Dateien hochzuladen</p>
+                    <small style="color: var(--text-muted);">PDF, Präsentationen, Dokumente etc.</small>
+                    <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileUpload(event)">
                 </div>
 
                 <div class="files-grid" id="filesGrid"></div>
@@ -324,9 +335,9 @@
     </div>
 
     <script>
-        // Ініціалізація IndexedDB для збереження великих файлів локально
+        // Потужна та стабільна ініціалізація IndexedDB з підтримкою великих бінарних файлів (Blob)
         let db;
-        const dbRequest = indexedDB.open("StudyHubDB", 1);
+        const dbRequest = indexedDB.open("LernportalDB", 2);
 
         dbRequest.onupgradeneeded = function(e) {
             db = e.target.result;
@@ -343,9 +354,13 @@
             loadFolders();
         };
 
+        dbRequest.onerror = function(e) {
+            console.error("Database error:", e.target.error);
+            alert("Fehler beim Öffnen der Datenbank!");
+        };
+
         let currentFolderId = null;
 
-        // Елементи DOM
         const folderList = document.getElementById('folderList');
         const addFolderForm = document.getElementById('addFolderForm');
         const folderInput = document.getElementById('folderInput');
@@ -362,13 +377,13 @@
             if (!name) return;
 
             const folder = {
-                id: Date.now().toString(),
+                id: 'folder_' + Date.now(),
                 name: name,
                 notes: ''
             };
 
             const tx = db.transaction("folders", "readwrite");
-            tx.objectStore("folders").add(folder);
+            tx.objectStore("folders").put(folder);
             tx.oncomplete = () => {
                 folderInput.value = '';
                 loadFolders();
@@ -388,7 +403,7 @@
                 folders.forEach(folder => {
                     const li = document.createElement('li');
                     li.className = `folder-item ${folder.id === currentFolderId ? 'active' : ''}`;
-                    li.innerHTML = `<i class="fa-solid fa-folder"></i> <span>${folder.name}</span>`;
+                    li.innerHTML = `<i class="fa-solid fa-folder"></i> <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</span>`;
                     li.onclick = () => selectFolder(folder.id);
                     folderList.appendChild(li);
                 });
@@ -427,35 +442,47 @@
 
             request.onsuccess = () => {
                 const folder = request.result;
-                folder.notes = notesInput.value;
-                store.put(folder);
-                alert('Висновки збережено!');
+                if (folder) {
+                    folder.notes = notesInput.value;
+                    store.put(folder);
+                    alert('Notizen erfolgreich gespeichert!');
+                }
             };
         });
 
-        // Завантаження файлу
+        // Завантаження файлів (прямо у вигляді Blob для надійності)
         function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file || !currentFolderId) return;
+            const files = event.target.files;
+            if (!files.length || !currentFolderId) return;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            const tx = db.transaction("files", "readwrite");
+            const store = tx.objectStore("files");
+
+            let completed = 0;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
                 const fileData = {
-                    id: Date.now().toString(),
+                    id: 'file_' + Date.now() + '_' + Math.random(),
                     folderId: currentFolderId,
                     name: file.name,
                     type: file.type,
                     size: file.size,
-                    content: e.target.result
+                    blob: file // Зберігаємо як є (Blob)
                 };
 
-                const tx = db.transaction("files", "readwrite");
-                tx.objectStore("files").add(fileData);
-                tx.oncomplete = () => {
-                    loadFiles(currentFolderId);
-                };
+                store.put(fileData);
+            }
+
+            tx.oncomplete = () => {
+                document.getElementById('fileInput').value = '';
+                loadFiles(currentFolderId);
             };
-            reader.readAsDataURL(file);
+
+            tx.onerror = (e) => {
+                console.error("File upload error:", e.target.error);
+                alert("Fehler beim Hochladen der Datei!");
+            };
         }
 
         // Відображення файлів
@@ -466,10 +493,11 @@
             const request = store.getAll();
 
             request.onsuccess = () => {
-                const files = request.result.filter(f => f.folderId === folderId);
+                const allFiles = request.result;
+                const files = allFiles.filter(f => f.folderId === folderId);
                 
                 if (files.length === 0) {
-                    filesGrid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Немає завантажених файлів.</p>';
+                    filesGrid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Noch keine Dateien hochgeladen.</p>';
                     return;
                 }
 
@@ -477,12 +505,15 @@
                     const card = document.createElement('div');
                     card.className = 'file-card';
 
-                    // Іконка в залежності від типу файлу
                     let icon = 'fa-file';
-                    if (file.name.endsWith('.pdf')) icon = 'fa-file-pdf';
-                    else if (file.name.endsWith('.pptx') || file.name.endsWith('.ppt')) icon = 'fa-file-powerpoint';
-                    else if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) icon = 'fa-file-word';
-                    else if (file.type.startsWith('image/')) icon = 'fa-file-image';
+                    const nameLower = file.name.toLowerCase();
+                    if (nameLower.endsWith('.pdf')) icon = 'fa-file-pdf';
+                    else if (nameLower.endsWith('.pptx') || nameLower.endsWith('.ppt')) icon = 'fa-file-powerpoint';
+                    else if (nameLower.endsWith('.docx') || nameLower.endsWith('.doc')) icon = 'fa-file-word';
+                    else if (file.type && file.type.startsWith('image/')) icon = 'fa-file-image';
+
+                    // Створюємо безпечне посилання для завантаження на льоту з Blob
+                    const fileUrl = URL.createObjectURL(file.blob);
 
                     card.innerHTML = `
                         <div class="file-info">
@@ -490,10 +521,10 @@
                             <div class="file-name" title="${file.name}">${file.name}</div>
                         </div>
                         <div class="file-actions">
-                            <a href="${file.content}" download="${file.name}" class="icon-btn" title="Завантажити">
+                            <a href="${fileUrl}" download="${file.name}" class="icon-btn" title="Herunterladen">
                                 <i class="fa-solid fa-download"></i>
                             </a>
-                            <button class="icon-btn delete" onclick="deleteFile('${file.id}')" title="Видалити">
+                            <button class="icon-btn delete" onclick="deleteFile('${file.id}')" title="Löschen">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -503,22 +534,21 @@
             };
         }
 
-        // Видалення файлу
+        // Видалення окремого файлу
         function deleteFile(fileId) {
-            if (!confirm('Видалити цей файл?')) return;
+            if (!confirm('Möchtest du diese Datei wirklich löschen?')) return;
             const tx = db.transaction("files", "readwrite");
             tx.objectStore("files").delete(fileId);
             tx.oncomplete = () => loadFiles(currentFolderId);
         }
 
-        // Видалення всієї папки
+        // Видалення папки та всіх її файлів
         document.getElementById('deleteFolderBtn').addEventListener('click', () => {
-            if (!confirm('Ви впевнені, що хочете видалити цю папку разом із усіма файлами?')) return;
+            if (!confirm('Möchtest du dieses Fach und alle zugehörigen Dateien wirklich löschen?')) return;
 
             const tx = db.transaction(["folders", "files"], "readwrite");
             tx.objectStore("folders").delete(currentFolderId);
             
-            // Видалення зв'язаних файлів
             const filesStore = tx.objectStore("files");
             const req = filesStore.getAll();
             req.onsuccess = () => {
